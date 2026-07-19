@@ -1,0 +1,21 @@
+{
+  "name": "cs-312-groupproject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kbchip/CS-312-GroupProject.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kbchip/CS-312-GroupProject/issues"
+  },
+  "homepage": "https://github.com/kbchip/CS-312-GroupProject#readme"
+}
