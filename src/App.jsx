@@ -1,11 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
+  const [books, setBooks] = useState([]);
+
+  useEffect(() => {
+  fetch('http://localhost:5000/api/books')
+    .then((res) => res.json())
+    .then((data) => setBooks(data))
+    .catch((err) => console.error("Error fetching books:", err));
+}, []);
 
   return (
     <>
@@ -29,6 +37,13 @@ function App() {
           Count is {count}
         </button>
       </section>
+
+    <section>
+  <h2>Book List</h2>
+  <ul>
+    {books.map(book => <li key={book.id}>{book.title} by {book.author}</li>)}
+  </ul>
+  </section>
 
       <div className="ticks"></div>
 

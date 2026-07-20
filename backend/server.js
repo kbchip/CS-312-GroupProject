@@ -2,17 +2,18 @@ import express from 'express';
 import session from 'express-session';
 import cors from 'cors'; 
 import authRoutes from './routes/auth.js'; 
+import pool from './db.js'; 
 
 const app = express();
 
-// 2. Add CORS middleware BEFORE your routes and session
 app.use(cors({
-    origin: 'http://localhost:5173', // default Vite point, bump to 5174 if it doesn't work.
-    credentials: true // Crucial: Allows the session cookie to be sent back and forth
+    origin: 'http://localhost:5173', // move to 5174 if 5173 doesn't work
+    credentials: true
 }));
 
 app.use(express.json());
 
+// Session configuration
 app.use(session({
     secret: "my_super_secret_key_for_school_project",
     resave: false,
@@ -26,12 +27,16 @@ app.use(session({
 // Connect Routes
 app.use("/api/auth", authRoutes);
 
-// Mock Book Route
-app.get("/api/books", (req, res) => {
-    res.json([
-        { id: 1, title: "The Hobbit", author: "J.R.R. Tolkien" },
-        { id: 2, title: "1984", author: "George Orwell" }
-    ]);
+// Database route for books
+app.get("/api/books", async (req, res) => {
+    try {
+        // Query the database table for all books
+        const result = await pool.query('SELECT * FROM books');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
 });
 
 const PORT = 5000;

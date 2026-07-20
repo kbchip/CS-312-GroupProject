@@ -3,7 +3,7 @@ const { Pool } = pg;
 
 const pool = new Pool({
     user: "postgres",
-    password: "password", // Change to your local password
+    password: "xr0!2ndb", // Change to your local password
     host: "localhost",
     port: 5432,
     database: "online_bookstore"
