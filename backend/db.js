@@ -2,10 +2,10 @@ import pg from 'pg';
 const { Pool } = pg;
 
 const pool = new Pool({
-    user: "postgres",
-    password: "xr0!2ndb", // Change to your local password
-    host: "localhost",
-    port: 5432,
+    user: process.env.DB_USER || 'postgres',
+    password: String(process.env.DB_PASSWORD),
+    host: process.env.DB_HOST || 'localhost',
+    port: Number(process.env.DB_PORT || 5432),
     database: "online_bookstore"
 });
 
