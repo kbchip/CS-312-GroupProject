@@ -41,8 +41,20 @@ app.get("/api/books", async (req, res) => {
     }
 });
 
+// Database route for book lookup by ID
+app.get("/api/books/:id", async (req, res) => {
+    try {
+        // Query DB on given book ID
+        const result = await pool.query('SELECT * FROM books WHERE id = $1', [req.params.id]);
+        res.json(result.rows[0]); // return only first result (there should only be one anyway)
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
 // Database route for reviews on a specific book ID
-app.get("/api/reviews/:id", async (req, res) => {
+app.get("/api/books/:id/reviews", async (req, res) => {
     try {
         // Query DB on given book ID
         const result = await pool.query('SELECT * FROM reviews WHERE book_id = $1', [req.params.id]);
