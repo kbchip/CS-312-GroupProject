@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 function HomePage() {
-  const [count, setCount] = useState(0);
   const [books, setBooks] = useState([]);
 
   useEffect(() => {
