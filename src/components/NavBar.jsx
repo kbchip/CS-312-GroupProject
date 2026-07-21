@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 
-function NavBar() {
+function NavBar({ user, isAuthLoading, onLogout }) {
   const linkClass = ({ isActive }) =>
     `nav-link ${isActive ? 'active fw-semibold' : ''}`
 
@@ -30,16 +30,31 @@ function NavBar() {
           </ul>
 
           <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <NavLink to="/sign-in" className={linkClass}>
-                Sign In
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink to="/create-account" className={linkClass}>
-                Create Account
-              </NavLink>
-            </li>
+            {isAuthLoading ? null : user ? (
+              <>
+                <li className="nav-item d-flex align-items-center px-2 text-muted">
+                  Signed in as {user.username}
+                </li>
+                <li className="nav-item">
+                  <button type="button" className="btn btn-link nav-link" onClick={onLogout}>
+                    Logout
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li className="nav-item">
+                  <NavLink to="/sign-in" className={linkClass}>
+                    Sign In
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink to="/create-account" className={linkClass}>
+                    Create Account
+                  </NavLink>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>
