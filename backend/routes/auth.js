@@ -4,6 +4,31 @@ import pool from '../db.js';
 
 const router = express.Router();
 
+const buildSessionUser = (userRow) => ({
+    id: userRow.id,
+    username: userRow.username,
+    email: userRow.email,
+});
+
+router.get("/me", (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    res.json({ user: req.session.user });
+});
+
+router.post("/logout", (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ error: "Unable to log out" });
+        }
+
+        res.clearCookie("connect.sid");
+        res.json({ message: "Logout successful" });
+    });
+});
+
 // Register a new user
 router.post("/register", async (req, res) => {
     try {
@@ -17,9 +42,9 @@ router.post("/register", async (req, res) => {
             [username, email, hashedPassword]
         );
 
-        req.session.user = newUser.rows[0];
+        req.session.user = buildSessionUser(newUser.rows[0]);
         res.json({ message: "Registration successful", user: req.session.user });
-    } catch (err) {
+    } catch {
         res.status(500).json({ error: "Server error or user already exists." });
     }
 });
@@ -35,9 +60,9 @@ router.post("/login", async (req, res) => {
         const validPassword = await bcrypt.compare(password, user.rows[0].password_hash);
         if (!validPassword) return res.status(401).json("Invalid Credentials");
 
-        req.session.user = { id: user.rows[0].id, username: user.rows[0].username };
+        req.session.user = buildSessionUser(user.rows[0]);
         res.json({ message: "Login successful", user: req.session.user });
-    } catch (err) {
+    } catch {
         res.status(500).send("Server error");
     }
 });
