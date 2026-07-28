@@ -4,6 +4,7 @@ import session from 'express-session';
 import cors from 'cors'; 
 import authRoutes from './routes/auth.js'; 
 import pool from './db.js'; 
+import bookRoutes from './routes/books.js';
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use(session({
 
 // Connect Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/books", bookRoutes);
 
 // Database route for books
 app.get("/api/books", async (req, res) => {
