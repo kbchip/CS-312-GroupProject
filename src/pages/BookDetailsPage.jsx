@@ -9,6 +9,12 @@ function BookDetailsPage({ user }) {
   const [reviewRating, setReviewRating] = useState(5)
   const [submitError, setSubmitError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [editingReviewId, setEditingReviewId] = useState(null)
+  const [editComment, setEditComment] = useState('')
+  const [editRating, setEditRating] = useState(5)
+  const [editError, setEditError] = useState('')
+  const [isSavingEdit, setIsSavingEdit] = useState(false)
+  const [deletingReviewId, setDeletingReviewId] = useState(null)
 
   useEffect(() => {
     fetch(`/api/books/${id}`)
@@ -73,6 +79,91 @@ function BookDetailsPage({ user }) {
     }
   }
 
+  const startEditingReview = (review) => {
+    setEditingReviewId(review.id)
+    setEditComment(review.comment)
+    setEditRating(review.rating)
+    setEditError('')
+  }
+
+  const cancelEditingReview = () => {
+    setEditingReviewId(null)
+    setEditComment('')
+    setEditRating(5)
+    setEditError('')
+  }
+
+  const handleEditSubmit = async (event) => {
+    event.preventDefault()
+
+    if (!editingReviewId) {
+      return
+    }
+
+    if (!editComment.trim()) {
+      setEditError('Please add a review comment.')
+      return
+    }
+
+    try {
+      setIsSavingEdit(true)
+      setEditError('')
+
+      const response = await fetch(`/api/books/${id}/reviews/${editingReviewId}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          rating: editRating,
+          comment: editComment.trim(),
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(errorData?.error || 'Unable to update review.')
+      }
+
+      await loadReviews()
+      cancelEditingReview()
+    } catch (error) {
+      setEditError(error.message)
+    } finally {
+      setIsSavingEdit(false)
+    }
+  }
+
+  const handleDeleteReview = async (reviewId) => {
+    if (!window.confirm('Delete this review?')) {
+      return
+    }
+
+    try {
+      setDeletingReviewId(reviewId)
+      const response = await fetch(`/api/books/${id}/reviews/${reviewId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+
+      if (!response.ok && response.status !== 204) {
+        const errorData = await response.json().catch(() => null)
+        throw new Error(errorData?.error || 'Unable to delete review.')
+      }
+
+      if (editingReviewId === reviewId) {
+        cancelEditingReview()
+      }
+
+      await loadReviews()
+    } catch (error) {
+      setEditError(error.message)
+    } finally {
+      setDeletingReviewId(null)
+    }
+  }
+
   const renderStars = (rating, onSelect, disabled = false) => {
     return Array.from({ length: 5 }, (_, index) => {
       const starValue = index + 1
@@ -111,7 +202,57 @@ function BookDetailsPage({ user }) {
               <span>{renderStars(review.rating, () => {}, true)}</span>
               <span className="text-muted">{review.rating}/5</span>
             </div>
-            <p className="mb-0">{review.comment}</p>
+            {editingReviewId === review.id ? (
+              <form onSubmit={handleEditSubmit} className="d-grid gap-3 mt-2" style={{ maxWidth: '42rem' }}>
+                <div>
+                  <label className="form-label d-block">Rating</label>
+                  <div>{renderStars(editRating, setEditRating)}</div>
+                </div>
+
+                <div>
+                  <label htmlFor={`edit-comment-${review.id}`} className="form-label">
+                    Review
+                  </label>
+                  <textarea
+                    id={`edit-comment-${review.id}`}
+                    className="form-control"
+                    rows="4"
+                    value={editComment}
+                    onChange={(event) => setEditComment(event.target.value)}
+                  />
+                </div>
+
+                {editError ? <p className="text-danger mb-0">{editError}</p> : null}
+
+                <div className="d-flex gap-2">
+                  <button type="submit" className="btn btn-primary" disabled={isSavingEdit}>
+                    {isSavingEdit ? 'Saving...' : 'Save changes'}
+                  </button>
+                  <button type="button" className="btn btn-outline-secondary" onClick={cancelEditingReview}>
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <>
+                <p className="mb-2">{review.comment}</p>
+                {user?.id === review.user_id ? (
+                  <div className="d-flex gap-2">
+                    <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => startEditingReview(review)}>
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-danger"
+                      onClick={() => handleDeleteReview(review.id)}
+                      disabled={deletingReviewId === review.id}
+                    >
+                      {deletingReviewId === review.id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
+                ) : null}
+              </>
+            )}
           </li>
         ))}
       </ul>

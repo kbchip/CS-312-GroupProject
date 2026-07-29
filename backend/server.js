@@ -58,6 +58,7 @@ app.get("/api/books/:id", async (req, res) => {
 // Database route for reviews on a specific book ID
 app.get("/api/books/:id/reviews", async (req, res) => {
     try {
+        // Query DB on given book ID and join users table for author display
         const result = await pool.query(
             `SELECT reviews.id, reviews.book_id, reviews.user_id, reviews.rating, reviews.comment, reviews.created_at, users.username
              FROM reviews
@@ -101,6 +102,69 @@ app.post("/api/books/:id/reviews", async (req, res) => {
             ...result.rows[0],
             username: req.session.user.username,
         });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
+app.patch("/api/books/:bookId/reviews/:reviewId", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: "You must be signed in to edit a review." });
+        }
+
+        const { rating, comment } = req.body;
+        const parsedRating = Number(rating);
+
+        if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+            return res.status(400).json({ error: "Rating must be an integer from 1 to 5." });
+        }
+
+        if (!comment || !comment.trim()) {
+            return res.status(400).json({ error: "Comment is required." });
+        }
+
+        const result = await pool.query(
+            `UPDATE reviews
+             SET rating = $1, comment = $2
+             WHERE id = $3 AND book_id = $4 AND user_id = $5
+             RETURNING id, book_id, user_id, rating, comment, created_at`,
+            [parsedRating, comment.trim(), req.params.reviewId, req.params.bookId, req.session.user.id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Review not found." });
+        }
+
+        res.json({
+            ...result.rows[0],
+            username: req.session.user.username,
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
+app.delete("/api/books/:bookId/reviews/:reviewId", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: "You must be signed in to delete a review." });
+        }
+
+        const result = await pool.query(
+            `DELETE FROM reviews
+             WHERE id = $1 AND book_id = $2 AND user_id = $3
+             RETURNING id`,
+            [req.params.reviewId, req.params.bookId, req.session.user.id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Review not found." });
+        }
+
+        res.status(204).send();
     } catch (err) {
         console.error(err.message);
         res.status(500).send("Server Error");
