@@ -22,11 +22,14 @@ function BookDetailsPage({ user }) {
       .then((data) => setBook(data))
   }, [id])
 
+  // Handle (re)loading of reviews on specified changes
   const loadReviews = useCallback(async () => {
     const response = await fetch(`/api/books/${id}/reviews`, {
       credentials: 'include',
     })
-    return response.json()
+    const data = await response.json()
+    setReviews(data)
+    return data
   }, [id])
 
   useEffect(() => {
