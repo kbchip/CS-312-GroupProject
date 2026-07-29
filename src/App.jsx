@@ -63,7 +63,7 @@ function App() {
       <NavBar user={user} isAuthLoading={false} onLogout={handleLogout} />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/books/:id" element={<BookDetailsPage />} />
+        <Route path="/books/:id" element={<BookDetailsPage user={user} />} />
         <Route
           path="/sign-in"
           element={user ? <Navigate to="/" replace /> : <SignInPage onLogin={handleLogin} />}

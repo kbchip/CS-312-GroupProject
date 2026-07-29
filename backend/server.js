@@ -58,9 +58,49 @@ app.get("/api/books/:id", async (req, res) => {
 // Database route for reviews on a specific book ID
 app.get("/api/books/:id/reviews", async (req, res) => {
     try {
-        // Query DB on given book ID
-        const result = await pool.query('SELECT * FROM reviews WHERE book_id = $1', [req.params.id]);
+        const result = await pool.query(
+            `SELECT reviews.id, reviews.book_id, reviews.user_id, reviews.rating, reviews.comment, reviews.created_at, users.username
+             FROM reviews
+             JOIN users ON users.id = reviews.user_id
+             WHERE reviews.book_id = $1
+             ORDER BY reviews.created_at DESC`,
+            [req.params.id]
+        );
         res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+});
+
+app.post("/api/books/:id/reviews", async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.status(401).json({ error: "You must be signed in to post a review." });
+        }
+
+        const { rating, comment } = req.body;
+        const parsedRating = Number(rating);
+
+        if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+            return res.status(400).json({ error: "Rating must be an integer from 1 to 5." });
+        }
+
+        if (!comment || !comment.trim()) {
+            return res.status(400).json({ error: "Comment is required." });
+        }
+
+        const result = await pool.query(
+            `INSERT INTO reviews (book_id, user_id, rating, comment)
+             VALUES ($1, $2, $3, $4)
+             RETURNING id, book_id, user_id, rating, comment, created_at`,
+            [req.params.id, req.session.user.id, parsedRating, comment.trim()]
+        );
+
+        res.status(201).json({
+            ...result.rows[0],
+            username: req.session.user.username,
+        });
     } catch (err) {
         console.error(err.message);
         res.status(500).send("Server Error");
