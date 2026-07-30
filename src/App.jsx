@@ -51,7 +51,7 @@ function App() {
     return (
       <>
         <NavBar user={null} isAuthLoading={true} onLogout={handleLogout} />
-        <main className="container py-5">
+        <main className="page-shell container py-5">
           <p className="text-muted mb-0">Loading session...</p>
         </main>
       </>

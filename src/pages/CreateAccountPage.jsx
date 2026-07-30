@@ -57,12 +57,12 @@ function CreateAccountPage({ onLogin }) {
 	}
 
 	return (
-		<div className="min-vh-100 d-flex align-items-center justify-content-center px-3 py-4">
-			<div style={{ width: '100%', maxWidth: '480px' }}>
-				<h1>Create your account</h1>
-				<p>Join the book reviews community in just a few steps.</p>
+		<div className="auth-page d-flex align-items-center justify-content-center px-3 py-4">
+			<div className="auth-card" style={{ width: '100%', maxWidth: '480px' }}>
+				<h1 className="page-title h3">Create your account</h1>
+				<p className="page-lead">Join the book reviews community in just a few steps.</p>
 
-				<form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
+				<form onSubmit={handleSubmit} className="d-grid gap-3">
 					<div style={{ display: 'grid', gap: '0.25rem' }}>
 						<label htmlFor="username">Username</label>
 						<input
@@ -99,9 +99,9 @@ function CreateAccountPage({ onLogin }) {
 						/>
 					</div>
 
-					{error ? <div>{error}</div> : null}
+					{error ? <div className="text-danger">{error}</div> : null}
 
-					<button type="submit" disabled={isSubmitting}>
+					<button type="submit" className="btn btn-primary" disabled={isSubmitting}>
 						{isSubmitting ? 'Creating account...' : 'Create account'}
 					</button>
 				</form>

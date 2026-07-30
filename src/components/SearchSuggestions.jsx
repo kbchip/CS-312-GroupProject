@@ -38,7 +38,7 @@ export default function SearchSuggestions() {
         onChange={(e) => setQuery(e.target.value)}
       />
       {suggestions.length > 0 && (
-        <ul className="list-group position-absolute w-100 shadow-sm mt-1" style={{ zIndex: 1000 }}>
+        <ul className="list-group position-absolute w-100 shadow-sm mt-1 suggestion-list">
           {suggestions.map((book) => (
             <li
               key={book.id}

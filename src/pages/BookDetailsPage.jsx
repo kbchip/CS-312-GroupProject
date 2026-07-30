@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 function BookDetailsPage({ user }) {
@@ -22,21 +22,21 @@ function BookDetailsPage({ user }) {
       .then((data) => setBook(data))
   }, [id])
 
-  // Handle (re)loading of reviews on specified changes
-  const loadReviews = useCallback(async () => {
-    const response = await fetch(`/api/books/${id}/reviews`, {
-      credentials: 'include',
-    })
-    const data = await response.json()
-    setReviews(data)
-    return data
-  }, [id])
-
   useEffect(() => {
+    const loadReviews = async () => {
+      try {
+        const response = await fetch(`/api/books/${id}/reviews`, {
+          credentials: 'include',
+        })
+        const data = await response.json()
+        setReviews(data)
+      } catch {
+        setReviews([])
+      }
+    }
+
     loadReviews()
-      .then((data) => setReviews(data))
-      .catch(() => setReviews([]))
-  }, [loadReviews])
+  }, [id])
 
   const handleReviewSubmit = async (event) => {
     event.preventDefault()
@@ -74,7 +74,11 @@ function BookDetailsPage({ user }) {
 
       setReviewComment('')
       setReviewRating(5)
-      await loadReviews()
+      const reviewResponse = await fetch(`/api/books/${id}/reviews`, {
+        credentials: 'include',
+      })
+      const data = await reviewResponse.json()
+      setReviews(data)
     } catch (error) {
       setSubmitError(error.message)
     } finally {
@@ -129,7 +133,11 @@ function BookDetailsPage({ user }) {
         throw new Error(errorData?.error || 'Unable to update review.')
       }
 
-      await loadReviews()
+      const updatedReviewsResponse = await fetch(`/api/books/${id}/reviews`, {
+        credentials: 'include',
+      })
+      const data = await updatedReviewsResponse.json()
+      setReviews(data)
       cancelEditingReview()
     } catch (error) {
       setEditError(error.message)
@@ -159,7 +167,11 @@ function BookDetailsPage({ user }) {
         cancelEditingReview()
       }
 
-      await loadReviews()
+      const refreshedReviewsResponse = await fetch(`/api/books/${id}/reviews`, {
+        credentials: 'include',
+      })
+      const data = await refreshedReviewsResponse.json()
+      setReviews(data)
     } catch (error) {
       setEditError(error.message)
     } finally {
@@ -191,22 +203,24 @@ function BookDetailsPage({ user }) {
   if (!book) return (<p>Loading...</p>)
 
   return (
-    <div>
-      <h1>{book.title}</h1>
-      <p>by {book.author}</p>
-      <p>{book.description}</p>
+    <div className="page-shell container py-4 py-md-5">
+      <div className="surface-card p-4 p-md-5 mb-4">
+        <h1 className="page-title book-heading">{book.title}</h1>
+        <p className="page-lead">by {book.author}</p>
+        <p className="mb-0">{book.description}</p>
+      </div>
 
-      <h2>Reviews</h2>
-      <ul>
+      <h2 className="review-heading">Reviews</h2>
+      <ul className="review-list mb-4">
         {reviews.map((review) => (
-          <li key={review.id} className="mb-3">
+          <li key={review.id} className="review-card">
             <div className="d-flex align-items-center gap-2 flex-wrap">
               <strong>{review.username || 'Anonymous'}</strong>
               <span>{renderStars(review.rating, () => {}, true)}</span>
-              <span className="text-muted">{review.rating}/5</span>
+              <span className="review-meta">{review.rating}/5</span>
             </div>
             {editingReviewId === review.id ? (
-              <form onSubmit={handleEditSubmit} className="d-grid gap-3 mt-2" style={{ maxWidth: '42rem' }}>
+              <form onSubmit={handleEditSubmit} className="d-grid gap-3 mt-3" style={{ maxWidth: '42rem' }}>
                 <div>
                   <label className="form-label d-block">Rating</label>
                   <div>{renderStars(editRating, setEditRating)}</div>
@@ -227,7 +241,7 @@ function BookDetailsPage({ user }) {
 
                 {editError ? <p className="text-danger mb-0">{editError}</p> : null}
 
-                <div className="d-flex gap-2">
+                <div className="d-flex gap-2 flex-wrap">
                   <button type="submit" className="btn btn-primary" disabled={isSavingEdit}>
                     {isSavingEdit ? 'Saving...' : 'Save changes'}
                   </button>
@@ -240,7 +254,7 @@ function BookDetailsPage({ user }) {
               <>
                 <p className="mb-2">{review.comment}</p>
                 {user?.id === review.user_id ? (
-                  <div className="d-flex gap-2">
+                  <div className="d-flex gap-2 flex-wrap">
                     <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => startEditingReview(review)}>
                       Edit
                     </button>
@@ -260,9 +274,9 @@ function BookDetailsPage({ user }) {
         ))}
       </ul>
 
-      <h2>Post a Review</h2>
+      <h2 className="review-heading">Post a Review</h2>
       {!user ? <p className="text-muted">Sign in to enable review posting.</p> : null}
-      <form onSubmit={handleReviewSubmit} className="d-grid gap-3" style={{ maxWidth: '42rem' }}>
+      <form onSubmit={handleReviewSubmit} className="surface-card p-4 d-grid gap-3" style={{ maxWidth: '42rem' }}>
         <div>
           <label className="form-label d-block">Rating</label>
           <div>{renderStars(reviewRating, setReviewRating, !user)}</div>

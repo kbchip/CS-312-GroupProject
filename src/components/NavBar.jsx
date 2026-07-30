@@ -5,9 +5,9 @@ function NavBar({ user, isAuthLoading, onLogout }) {
     `nav-link ${isActive ? 'active fw-semibold' : ''}`
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom px-3">
+    <nav className="navbar navbar-expand-lg navbar-dark app-navbar border-bottom px-3">
       <div className="container-fluid">
-        <NavLink to="/" className="navbar-brand">
+        <NavLink to="/" className="navbar-brand fw-semibold">
           Book Reviews
         </NavLink>
 
@@ -32,11 +32,11 @@ function NavBar({ user, isAuthLoading, onLogout }) {
           <ul className="navbar-nav ms-auto">
             {isAuthLoading ? null : user ? (
               <>
-                <li className="nav-item d-flex align-items-center px-2 text-muted">
+                <li className="nav-item d-flex align-items-center px-2 navbar-text text-muted">
                   Signed in as {user.username}
                 </li>
                 <li className="nav-item">
-                  <button type="button" className="btn btn-link nav-link" onClick={onLogout}>
+                  <button type="button" className="btn btn-link nav-link text-decoration-none" onClick={onLogout}>
                     Logout
                   </button>
                 </li>

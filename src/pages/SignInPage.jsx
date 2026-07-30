@@ -63,12 +63,12 @@ function SignInPage({ onLogin }) {
 	}
 
 	return (
-		<div className="min-vh-100 d-flex align-items-center justify-content-center px-3 py-4">
-			<div style={{ width: '100%', maxWidth: '440px' }}>
-				<h1>Sign in</h1>
-				<p>Use the email and password from your account.</p>
+		<div className="auth-page d-flex align-items-center justify-content-center px-3 py-4">
+			<div className="auth-card" style={{ width: '100%', maxWidth: '440px' }}>
+				<h1 className="page-title h3">Sign in</h1>
+				<p className="page-lead">Use the email and password from your account.</p>
 
-				<form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
+				<form onSubmit={handleSubmit} className="d-grid gap-3">
 					<div style={{ display: 'grid', gap: '0.25rem' }}>
 						<label htmlFor="email">Email</label>
 						<input
@@ -93,10 +93,10 @@ function SignInPage({ onLogin }) {
 						/>
 					</div>
 
-					{error ? <div>{error}</div> : null}
-					{message ? <div>{message}</div> : null}
+					{error ? <div className="text-danger">{error}</div> : null}
+					{message ? <div className="text-muted">{message}</div> : null}
 
-					<button type="submit" disabled={isSubmitting}>
+					<button type="submit" className="btn btn-primary" disabled={isSubmitting}>
 						{isSubmitting ? 'Signing in...' : 'Sign in'}
 					</button>
 				</form>

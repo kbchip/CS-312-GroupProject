@@ -54,55 +54,55 @@ function HomePage() {
   });
 
   return (
-    <div>
-      <h2>Book List</h2>
-      <div className="mb-4" style={{ maxWidth: '400px' }}>
+    <div className="page-shell container py-4 py-md-5">
+      <h1 className="page-title h2 mb-3">Book List</h1>
+      <div className="mb-4 search-panel" style={{ maxWidth: '420px' }}>
         <SearchSuggestions />
       </div>
 
-      {/* Filtering & Sorting Controls */}
-      <div className="row mb-4 g-3 align-items-end">
-        <div className="col-md-3">
-          <label className="form-label">Sort By</label>
-          <select className="form-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="title">Title</option>
-            <option value="author">Author</option>
-            <option value="year">Published Year</option>
-          </select>
-        </div>
-        
-        <div className="col-md-3">
-          <label className="form-label">Filter by Author</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="e.g. Orwell"
-            value={filterAuthor}
-            onChange={(e) => setFilterAuthor(e.target.value)}
-          />
-        </div>
-        <div className="col-md-3">
-          <label className="form-label">Year Filter Type</label>
-          <select className="form-select" value={yearFilterType} onChange={(e) => setYearFilterType(e.target.value)}>
-            <option value="before">Before or In</option>
-            <option value="after">After or In</option>
-          </select>
-        </div>
+      <div className="controls-panel mb-4">
+        <div className="row g-3 align-items-end">
+          <div className="col-md-3">
+            <label className="form-label">Sort By</label>
+            <select className="form-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="title">Title</option>
+              <option value="author">Author</option>
+              <option value="year">Published Year</option>
+            </select>
+          </div>
 
-        {/* Input for the actual year */}
-        <div className="col-md-3">
-          <label className="form-label">Published Year</label>
-          <input
-            type="number"
-            className="form-control"
-            placeholder="e.g. 1950"
-            value={filterYear}
-            onChange={(e) => setFilterYear(e.target.value)}
-          />
+          <div className="col-md-3">
+            <label className="form-label">Filter by Author</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="e.g. Orwell"
+              value={filterAuthor}
+              onChange={(e) => setFilterAuthor(e.target.value)}
+            />
+          </div>
+          <div className="col-md-3">
+            <label className="form-label">Year Filter Type</label>
+            <select className="form-select" value={yearFilterType} onChange={(e) => setYearFilterType(e.target.value)}>
+              <option value="before">Before or In</option>
+              <option value="after">After or In</option>
+            </select>
+          </div>
+
+          <div className="col-md-3">
+            <label className="form-label">Published Year</label>
+            <input
+              type="number"
+              className="form-control"
+              placeholder="e.g. 1950"
+              value={filterYear}
+              onChange={(e) => setFilterYear(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
-      <ul>
+      <ul className="book-list">
         {sortedBooks.map(book => 
           <li key={book.id}>
             <Link to={`/books/${book.id}`}>
