@@ -12,7 +12,7 @@ function HomePage() {
   const [yearFilterType, setYearFilterType] = useState('before'); 
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/books')
+    fetch('/api/books')
       .then((res) => res.json())
       .then((data) => setBooks(data))
       .catch((err) => console.error("Error fetching books:", err));
