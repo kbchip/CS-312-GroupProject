@@ -2,14 +2,23 @@ import 'dotenv/config';
 import express from 'express';
 import session from 'express-session';
 import cors from 'cors'; 
+import path from 'path';
+import { fileURLToPath } from 'url';
 import authRoutes from './routes/auth.js'; 
 import pool from './db.js'; 
 import bookRoutes from './routes/books.js';
 
+// Recreate __dirname for ES module support
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
+// Dynamic CORS configuration (works locally and in production)
 app.use(cors({
-    origin: 'http://localhost:5173', // move to 5174 if 5173 doesn't work
+    origin: process.env.NODE_ENV === 'production' 
+        ? true 
+        : ['http://localhost:5173', 'http://localhost:5174'],
     credentials: true
 }));
 
@@ -18,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Session configuration
 app.use(session({
-    secret: "my_super_secret_key_for_school_project",
+    secret: process.env.SESSION_SECRET || "my_super_secret_key_for_school_project",
     resave: false,
     saveUninitialized: false,
     cookie: { 
@@ -27,14 +36,13 @@ app.use(session({
     }
 }));
 
-// Connect Routes
+// Connect API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
 
 // Database route for books
 app.get("/api/books", async (req, res) => {
     try {
-        // Query the database table for all books
         const result = await pool.query('SELECT * FROM books');
         res.json(result.rows);
     } catch (err) {
@@ -46,9 +54,8 @@ app.get("/api/books", async (req, res) => {
 // Database route for book lookup by ID
 app.get("/api/books/:id", async (req, res) => {
     try {
-        // Query DB on given book ID
         const result = await pool.query('SELECT * FROM books WHERE id = $1', [req.params.id]);
-        res.json(result.rows[0]); // return only first result (there should only be one anyway)
+        res.json(result.rows[0]);
     } catch (err) {
         console.error(err.message);
         res.status(500).send("Server Error");
@@ -58,7 +65,6 @@ app.get("/api/books/:id", async (req, res) => {
 // Database route for reviews on a specific book ID
 app.get("/api/books/:id/reviews", async (req, res) => {
     try {
-        // Query DB on given book ID and join users table for author display
         const result = await pool.query(
             `SELECT reviews.id, reviews.book_id, reviews.user_id, reviews.rating, reviews.comment, reviews.created_at, users.username
              FROM reviews
@@ -171,7 +177,19 @@ app.delete("/api/books/:bookId/reviews/:reviewId", async (req, res) => {
     }
 });
 
-const PORT = 5000;
+// --- STATIC FILE SERVING FOR PRODUCTION ---
+// Points to the frontend build folder relative to backend/server.js
+const distPath = path.join(__dirname, '../dist'); // Change to '../frontend/dist' if your build folder is inside a frontend folder
+
+app.use(express.static(distPath));
+
+// Catch-all route to serve index.html for React Router navigation
+app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+});
+
+// Use dynamic port provided by environment or default to 5000
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running smoothly on port ${PORT}...`);
 });
