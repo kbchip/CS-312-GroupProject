@@ -184,7 +184,7 @@ const distPath = path.join(__dirname, '../dist'); // Change to '../frontend/dist
 app.use(express.static(distPath));
 
 // Catch-all route to serve index.html for React Router navigation
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
 });
 
