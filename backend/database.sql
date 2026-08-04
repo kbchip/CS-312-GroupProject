@@ -9,7 +9,8 @@ CREATE TABLE books (
     title VARCHAR(255) NOT NULL,
     author VARCHAR(255) NOT NULL,
     description TEXT,
-    published_year INTEGER
+    published_year INTEGER,
+    isbn VARCHAR(20) -- Added column for Open Library Covers API integration
 );
 
 -- Create the users table for Student 2 Authentication tasks
@@ -30,14 +31,14 @@ CREATE TABLE reviews (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Insert sample books including descriptions and published years
-INSERT INTO books (title, author, description, published_year) 
+-- Insert sample books including descriptions, published years, and ISBNs for covers
+INSERT INTO books (title, author, description, published_year, isbn) 
 VALUES 
-('The Hobbit', 'J.R.R. Tolkien', 'A fantasy novel.', 1937),
-('To Kill a Mockingbird', 'Harper Lee', 'A classic novel of a childhood in a sleepy Southern town and the crisis of conscience that rocked it.', 1960),
-('1984', 'George Orwell', 'A dystopian social science fiction novel and cautionary tale about the dangers of totalitarianism.', 1949),
-('The Great Gatsby', 'F. Scott Fitzgerald', 'A portrait of the Jazz Age in all of its decadence and excess.', 1925),
-('Pride and Prejudice', 'Jane Austen', 'A romantic novel of manners following character development of Elizabeth Bennet.', 1813);
+('The Hobbit', 'J.R.R. Tolkien', 'A fantasy novel.', 1937, '9780547928227'),
+('To Kill a Mockingbird', 'Harper Lee', 'A classic novel of a childhood in a sleepy Southern town and the crisis of conscience that rocked it.', 1960, '9780061120084'),
+('1984', 'George Orwell', 'A dystopian social science fiction novel and cautionary tale about the dangers of totalitarianism.', 1949, '9780451524935'),
+('The Great Gatsby', 'F. Scott Fitzgerald', 'A portrait of the Jazz Age in all of its decadence and excess.', 1925, '9780743273565'),
+('Pride and Prejudice', 'Jane Austen', 'A romantic novel of manners following character development of Elizabeth Bennet.', 1813, '9780141439518');
 
 -- Insert a mock user for initial reviews
 INSERT INTO users (id, username, email, password_hash) 

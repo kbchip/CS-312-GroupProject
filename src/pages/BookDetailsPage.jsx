@@ -204,10 +204,21 @@ function BookDetailsPage({ user }) {
 
   return (
     <div className="page-shell container py-4 py-md-5">
-      <div className="surface-card p-4 p-md-5 mb-4">
-        <h1 className="page-title book-heading">{book.title}</h1>
-        <p className="page-lead">by {book.author}</p>
-        <p className="mb-0">{book.description}</p>
+      <div className="surface-card p-4 p-md-5 mb-4 d-flex gap-4 flex-column flex-md-row align-items-center align-items-md-start">
+        {/* Book Cover Image Integration */}
+        {book.isbn && (
+          <img
+            src={`https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`}
+            alt={`Cover of ${book.title}`}
+            className="img-fluid rounded shadow-sm"
+            style={{ maxWidth: '180px', height: 'auto' }}
+          />
+        )}
+        <div>
+          <h1 className="page-title book-heading">{book.title}</h1>
+          <p className="page-lead">by {book.author}</p>
+          <p className="mb-0">{book.description}</p>
+        </div>
       </div>
 
       <h2 className="review-heading">Reviews</h2>
@@ -255,7 +266,7 @@ function BookDetailsPage({ user }) {
                 <p className="mb-2">{review.comment}</p>
                 {user?.id === review.user_id ? (
                   <div className="d-flex gap-2 flex-wrap">
-                    <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => startEditingReview(review)}>
+                    <button type="image" className="btn btn-sm btn-outline-primary" onClick={() => startEditingReview(review)}>
                       Edit
                     </button>
                     <button
